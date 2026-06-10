@@ -53,9 +53,9 @@ npm run dev
 2. **New → Blueprint** → укажите URL репозитория с файлом `render.yaml`.
 3. Render создаст PostgreSQL, API и фронтенд. Публичный URL будет у сервиса `podm-frontend`.
 
-Кнопка быстрого деплоя (после push на GitHub):
+Кнопка быстрого деплоя:
 
-[![Deploy to Render](https://render.com/images/deploy-to-render-button.svg)](https://render.com/deploy)
+[![Deploy to Render](https://render.com/images/deploy-to-render-button.svg)](https://render.com/deploy?repo=https://github.com/DigilevichAlexandr/PeopleOfDarkMind)
 
 ## Структура
 
