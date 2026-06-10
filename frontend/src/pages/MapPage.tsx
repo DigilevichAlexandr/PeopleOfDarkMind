@@ -1,31 +1,14 @@
-import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import api from '../api/client';
-
-interface Location {
-  id: string;
-  code: string;
-  name: string;
-  description: string;
-  district: string;
-  isMystic: boolean;
-  isAccessible: boolean;
-  mapX: number;
-  mapY: number;
-  icon: string;
-}
+import { useGame } from '../context/GameContext';
 
 export default function MapPage() {
-  const [locations, setLocations] = useState<Location[]>([]);
+  const { getLocations, travelTo } = useGame();
+  const locations = getLocations();
   const navigate = useNavigate();
 
-  useEffect(() => {
-    api.get<Location[]>('/game/locations').then((r) => setLocations(r.data));
-  }, []);
-
-  const travel = async (id: string) => {
-    await api.post(`/game/travel/${id}`);
-    navigate('/game');
+  const travel = (id: string) => {
+    const result = travelTo(id);
+    if (result.ok) navigate('/game');
   };
 
   return (

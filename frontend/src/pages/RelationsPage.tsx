@@ -1,25 +1,8 @@
-import { useEffect, useState } from 'react';
-import api from '../api/client';
-
-interface Npc {
-  id: string;
-  code: string;
-  name: string;
-  description: string;
-  portraitEmoji: string;
-  trust: number;
-  affection: number;
-  fear: number;
-  hasMet: boolean;
-  faction: string | null;
-}
+import { useGame } from '../context/GameContext';
 
 export default function RelationsPage() {
-  const [npcs, setNpcs] = useState<Npc[]>([]);
-
-  useEffect(() => {
-    api.get<Npc[]>('/game/npcs').then((r) => setNpcs(r.data));
-  }, []);
+  const { getNpcs } = useGame();
+  const npcs = getNpcs();
 
   return (
     <div>

@@ -47,7 +47,23 @@ npm run dev
 - Доска расследования, журнал
 - JWT-авторизация
 
-## Публикация (Render)
+## GitHub Pages (браузерная версия)
+
+Игра работает **полностью в браузере** — без сервера, сохранение в `localStorage`.
+
+После push в `master` GitHub Actions деплоит фронтенд:
+
+**https://digilevichalexandr.github.io/PeopleOfDarkMind/**
+
+Локальная сборка для Pages:
+
+```bash
+cd frontend
+set GITHUB_PAGES=true   # Windows
+npm run build
+```
+
+## Публикация backend (Render)
 
 1. Форкните репозиторий или подключите свой на [Render](https://render.com).
 2. **New → Blueprint** → укажите URL репозитория с файлом `render.yaml`.

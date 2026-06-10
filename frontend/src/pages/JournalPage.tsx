@@ -1,20 +1,8 @@
-import { useEffect, useState } from 'react';
-import api from '../api/client';
-
-interface Entry {
-  id: string;
-  day: number;
-  title: string;
-  content: string;
-  createdAt: string;
-}
+import { useGame } from '../context/GameContext';
 
 export default function JournalPage() {
-  const [entries, setEntries] = useState<Entry[]>([]);
-
-  useEffect(() => {
-    api.get<Entry[]>('/game/journal').then((r) => setEntries(r.data));
-  }, []);
+  const { getJournal } = useGame();
+  const entries = getJournal();
 
   return (
     <div>

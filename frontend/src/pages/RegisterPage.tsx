@@ -1,36 +1,35 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import { AuthForm } from './LoginPage';
 
 export default function RegisterPage() {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [name, setName] = useState('');
-  const [error, setError] = useState('');
-  const { register } = useAuth();
+  const [name, setName] = useState('Алексей');
+  const { setPlayerName } = useAuth();
   const navigate = useNavigate();
 
-  const submit = async (e: React.FormEvent) => {
+  const submit = (e: React.FormEvent) => {
     e.preventDefault();
-    setError('');
-    try {
-      await register(email, password, name || undefined);
-      navigate('/new-game');
-    } catch {
-      setError('Не удалось зарегистрироваться');
-    }
+    setPlayerName(name);
+    navigate('/new-game');
   };
 
   return (
-    <AuthForm title="Регистрация" error={error} onSubmit={submit}>
-      <input type="text" placeholder="Имя героя (опционально)" value={name} onChange={(e) => setName(e.target.value)} className="input" />
-      <input type="email" placeholder="Email" value={email} onChange={(e) => setEmail(e.target.value)} required className="input" />
-      <input type="password" placeholder="Пароль (мин. 6)" value={password} onChange={(e) => setPassword(e.target.value)} required minLength={6} className="input" />
-      <button type="submit" className="btn-primary w-full">Создать аккаунт</button>
-      <p className="text-sm text-muted text-center">
-        Уже есть аккаунт? <Link to="/login" className="text-accent">Войти</Link>
-      </p>
-    </AuthForm>
+    <div className="min-h-screen flex items-center justify-center px-4 bg-void">
+      <form onSubmit={submit} className="w-full max-w-md bg-panel border border-border rounded-xl p-6 space-y-4">
+        <h1 className="font-[family-name:var(--font-display)] text-2xl">Начать</h1>
+        <p className="text-sm text-muted">Создайте локальный профиль — без сервера и пароля</p>
+        <input
+          value={name}
+          onChange={(e) => setName(e.target.value)}
+          className="input"
+          placeholder="Имя игрока"
+          required
+        />
+        <button type="submit" className="btn-primary w-full">Далее</button>
+        <p className="text-sm text-muted text-center">
+          Уже играли? <Link to="/login" className="text-accent hover:underline">Войти</Link>
+        </p>
+      </form>
+    </div>
   );
 }

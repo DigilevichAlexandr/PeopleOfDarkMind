@@ -1,13 +1,9 @@
-import { useEffect, useState } from 'react';
-import api, { type Character } from '../api/client';
+import { useGame } from '../context/GameContext';
 import StatBar from '../components/StatBar';
 
 export default function CharacterPage() {
-  const [c, setC] = useState<Character | null>(null);
-
-  useEffect(() => {
-    api.get<Character>('/game/character').then((r) => setC(r.data)).catch(() => setC(null));
-  }, []);
+  const { state } = useGame();
+  const c = state?.character;
 
   if (!c) return <p className="text-muted">Персонаж не найден</p>;
 

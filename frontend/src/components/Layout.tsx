@@ -13,7 +13,7 @@ const nav = [
 ];
 
 export default function Layout() {
-  const { email, logout } = useAuth();
+  const { playerName, logout } = useAuth();
 
   return (
     <div className="min-h-screen flex flex-col bg-void">
@@ -38,7 +38,7 @@ export default function Layout() {
             ))}
           </nav>
           <div className="flex items-center gap-3 text-sm text-muted shrink-0">
-            <span className="hidden sm:inline truncate max-w-[140px]">{email}</span>
+            <span className="hidden sm:inline truncate max-w-[140px]">{playerName}</span>
             <button type="button" onClick={logout} className="text-danger hover:underline">
               Выйти
             </button>

@@ -1,24 +1,8 @@
-import { useEffect, useState } from 'react';
-import api from '../api/client';
-
-interface Evidence {
-  id: string;
-  code: string;
-  title: string;
-  description: string;
-  type: string;
-  isCollected: boolean;
-  isConnected: boolean;
-  collectedAt: string | null;
-}
+import { useGame } from '../context/GameContext';
 
 export default function InvestigationPage() {
-  const [items, setItems] = useState<Evidence[]>([]);
-
-  useEffect(() => {
-    api.get<Evidence[]>('/game/evidence').then((r) => setItems(r.data));
-  }, []);
-
+  const { getEvidence } = useGame();
+  const items = getEvidence();
   const collected = items.filter((e) => e.isCollected);
 
   return (
@@ -34,7 +18,6 @@ export default function InvestigationPage() {
               <span className="text-xs text-accent">{e.type}</span>
               <h3 className="font-medium mt-1">{e.title}</h3>
               <p className="text-sm text-slate-400 mt-2">{e.description}</p>
-              {e.isConnected && <span className="text-xs text-mystic mt-2 block">🔗 Связана</span>}
             </article>
           ))
         )}

@@ -1,5 +1,6 @@
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider, useAuth } from './context/AuthContext';
+import { GameProvider } from './context/GameContext';
 import Layout from './components/Layout';
 import HomePage from './pages/HomePage';
 import LoginPage from './pages/LoginPage';
@@ -16,30 +17,32 @@ import SettingsPage from './pages/SettingsPage';
 
 function PrivateRoute({ children }: { children: React.ReactNode }) {
   const { isAuthenticated } = useAuth();
-  return isAuthenticated ? <>{children}</> : <Navigate to="/login" replace />;
+  return isAuthenticated ? <>{children}</> : <Navigate to="/register" replace />;
 }
 
 export default function App() {
   return (
     <AuthProvider>
-      <BrowserRouter>
-        <Routes>
-          <Route path="/" element={<HomePage />} />
-          <Route path="/login" element={<LoginPage />} />
-          <Route path="/register" element={<RegisterPage />} />
-          <Route element={<PrivateRoute><Layout /></PrivateRoute>}>
-            <Route path="/game" element={<GamePage />} />
-            <Route path="/new-game" element={<NewGamePage />} />
-            <Route path="/map" element={<MapPage />} />
-            <Route path="/character" element={<CharacterPage />} />
-            <Route path="/inventory" element={<InventoryPage />} />
-            <Route path="/investigation" element={<InvestigationPage />} />
-            <Route path="/journal" element={<JournalPage />} />
-            <Route path="/relations" element={<RelationsPage />} />
-            <Route path="/settings" element={<SettingsPage />} />
-          </Route>
-        </Routes>
-      </BrowserRouter>
+      <GameProvider>
+        <BrowserRouter basename={import.meta.env.BASE_URL}>
+          <Routes>
+            <Route path="/" element={<HomePage />} />
+            <Route path="/login" element={<LoginPage />} />
+            <Route path="/register" element={<RegisterPage />} />
+            <Route element={<PrivateRoute><Layout /></PrivateRoute>}>
+              <Route path="/game" element={<GamePage />} />
+              <Route path="/new-game" element={<NewGamePage />} />
+              <Route path="/map" element={<MapPage />} />
+              <Route path="/character" element={<CharacterPage />} />
+              <Route path="/inventory" element={<InventoryPage />} />
+              <Route path="/investigation" element={<InvestigationPage />} />
+              <Route path="/journal" element={<JournalPage />} />
+              <Route path="/relations" element={<RelationsPage />} />
+              <Route path="/settings" element={<SettingsPage />} />
+            </Route>
+          </Routes>
+        </BrowserRouter>
+      </GameProvider>
     </AuthProvider>
   );
 }

@@ -1,21 +1,22 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import api from '../api/client';
+import { useGame } from '../context/GameContext';
 
 export default function NewGamePage() {
   const [name, setName] = useState('Алексей');
   const [error, setError] = useState('');
+  const { newGame, resetGame } = useGame();
   const navigate = useNavigate();
 
-  const start = async () => {
+  const start = () => {
     setError('');
-    try {
-      await api.post('/game/new', { characterName: name });
-      navigate('/game');
-    } catch (err: unknown) {
-      const msg = (err as { response?: { data?: { error?: string } } })?.response?.data?.error;
-      setError(msg ?? 'Ошибка создания игры');
+    resetGame();
+    const result = newGame(name);
+    if (!result.ok) {
+      setError(result.error);
+      return;
     }
+    navigate('/game');
   };
 
   return (

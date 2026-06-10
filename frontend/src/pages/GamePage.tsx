@@ -1,7 +1,7 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useState } from 'react';
 import { Link } from 'react-router-dom';
-import axios from 'axios';
-import api, { type GameState } from '../api/client';
+import type { GameState } from '../api/client';
+import { useGame } from '../context/GameContext';
 import StatBar from '../components/StatBar';
 
 const ACTION_LABELS: Record<string, string> = {
@@ -21,85 +21,30 @@ const ACTION_LABELS: Record<string, string> = {
   PayBills: 'Оплатить счета',
 };
 
-function apiError(err: unknown): string {
-  if (axios.isAxiosError(err)) {
-    return (err.response?.data as { error?: string })?.error ?? err.message;
-  }
-  return 'Неизвестная ошибка';
-}
-
 export default function GamePage() {
-  const [state, setState] = useState<GameState | null>(null);
-  const [error, setError] = useState('');
+  const { state, performAction, triggerRandom, makeChoice } = useGame();
   const [actionError, setActionError] = useState('');
-  const [loading, setLoading] = useState(true);
   const [busy, setBusy] = useState(false);
 
-  const load = useCallback(async () => {
-    try {
-      const { data } = await api.get<GameState>('/game/state');
-      setState(data);
-      setError('');
-    } catch {
-      setError('Нет активной игры');
-      setState(null);
-    } finally {
-      setLoading(false);
-    }
-  }, []);
-
-  useEffect(() => { load(); }, [load]);
-
-  const performAction = async (actionType: string) => {
+  const run = (fn: () => { ok: boolean; error?: string }) => {
     setBusy(true);
     setActionError('');
-    try {
-      const { data } = await api.post<GameState>('/game/action', { actionType });
-      setState(data);
-    } catch (err) {
-      setActionError(apiError(err));
-    } finally {
-      setBusy(false);
-    }
+    const result = fn();
+    if (!result.ok) setActionError(result.error ?? 'Ошибка');
+    setBusy(false);
   };
 
-  const triggerRandom = async () => {
-    setBusy(true);
-    setActionError('');
-    try {
-      const { data } = await api.post<GameState>('/game/random-event');
-      setState(data);
-    } catch (err) {
-      setActionError(apiError(err));
-    } finally {
-      setBusy(false);
-    }
-  };
-
-  const makeChoice = async (eventId: string, choiceId: string) => {
-    setBusy(true);
-    setActionError('');
-    try {
-      const { data } = await api.post<GameState>('/game/choice', { eventId, choiceId });
-      setState(data);
-    } catch (err) {
-      setActionError(apiError(err));
-    } finally {
-      setBusy(false);
-    }
-  };
-
-  if (loading) return <p className="text-muted">Загрузка...</p>;
   if (!state) {
     return (
       <div className="text-center py-16">
-        <p className="text-muted mb-6">{error}</p>
+        <p className="text-muted mb-6">Нет активной игры</p>
         <Link to="/new-game" className="btn-primary">Начать новую игру</Link>
       </div>
     );
   }
 
-  const { character: c, currentEvent, periodLabel, dayLabel } = state;
+  const gameState = state as GameState;
+  const { character: c, currentEvent, periodLabel, dayLabel } = gameState;
   const s = c.stats;
 
   return (
@@ -133,7 +78,7 @@ export default function GamePage() {
                   key={ch.id}
                   type="button"
                   disabled={!ch.isAvailable || busy}
-                  onClick={() => makeChoice(currentEvent.id, ch.id)}
+                  onClick={() => run(() => makeChoice(currentEvent.id, ch.id))}
                   className="w-full text-left px-4 py-3 rounded-lg border border-border hover:border-accent disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
                 >
                   {ch.text}
@@ -151,19 +96,19 @@ export default function GamePage() {
               <button
                 type="button"
                 disabled={busy}
-                onClick={triggerRandom}
+                onClick={() => run(() => triggerRandom())}
                 className="text-sm px-3 py-1.5 rounded-lg border border-mystic/50 text-mystic hover:bg-mystic/10 disabled:opacity-50"
               >
                 Случайное событие
               </button>
             </div>
             <div className="grid sm:grid-cols-2 gap-2">
-              {state.availableActions.map((a) => (
+              {gameState.availableActions.map((a) => (
                 <button
                   key={a}
                   type="button"
                   disabled={busy}
-                  onClick={() => performAction(a)}
+                  onClick={() => run(() => performAction(a))}
                   className="action-btn disabled:opacity-50"
                 >
                   {ACTION_LABELS[a] ?? a}
