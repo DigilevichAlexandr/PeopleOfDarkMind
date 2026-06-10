@@ -1,0 +1,46 @@
+# Blueprint: https://render.com/docs/blueprint-spec
+databases:
+  - name: podm-db
+    databaseName: peopleofdarkmind
+    user: podm
+    plan: free
+
+services:
+  - type: web
+    name: podm-api
+    runtime: docker
+    dockerfilePath: ./backend/src/PeopleOfDarkMind.API/Dockerfile
+    dockerContext: ./backend
+    plan: free
+    healthCheckPath: /health
+    envVars:
+      - key: ASPNETCORE_ENVIRONMENT
+        value: Production
+      - key: ConnectionStrings__DefaultConnection
+        fromDatabase:
+          name: podm-db
+          property: connectionString
+      - key: Jwt__Key
+        generateValue: true
+      - key: Jwt__Issuer
+        value: PeopleOfDarkMind
+      - key: Jwt__Audience
+        value: PeopleOfDarkMind.Client
+      - key: Frontend__Url
+        fromService:
+          type: web
+          name: podm-frontend
+          envVarKey: RENDER_EXTERNAL_URL
+
+  - type: web
+    name: podm-frontend
+    runtime: docker
+    dockerfilePath: ./frontend/Dockerfile
+    dockerContext: ./frontend
+    plan: free
+    envVars:
+      - key: API_UPSTREAM
+        fromService:
+          type: web
+          name: podm-api
+          property: hostport

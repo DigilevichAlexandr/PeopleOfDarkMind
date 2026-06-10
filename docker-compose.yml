@@ -1,0 +1,47 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: peopleofdarkmind
+      POSTGRES_USER: podm
+      POSTGRES_PASSWORD: podm_secret
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U podm -d peopleofdarkmind"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  api:
+    build:
+      context: ./backend
+      dockerfile: src/PeopleOfDarkMind.API/Dockerfile
+    environment:
+      ConnectionStrings__DefaultConnection: "Host=postgres;Port=5432;Database=peopleofdarkmind;Username=podm;Password=podm_secret"
+      Jwt__Key: "PeopleOfDarkMind_SuperSecret_Key_AtLeast32Chars!"
+      Jwt__Issuer: "PeopleOfDarkMind"
+      Jwt__Audience: "PeopleOfDarkMind.Client"
+      Frontend__Url: "http://localhost:5173"
+      ASPNETCORE_ENVIRONMENT: Production
+    ports:
+      - "5000:8080"
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    environment:
+      API_UPSTREAM: http://api:8080
+    ports:
+      - "5173:80"
+    depends_on:
+      - api
+
+volumes:
+  postgres_data:
